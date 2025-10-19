@@ -38,7 +38,7 @@ class EcosmeticsPayment:
             '__pr.d1zjip': '8r_agKnn9d',
             '_fbp': 'fb.1.1760778312473.662763495889949214',
             'cdn.ecosmeticsinc.101117.ka.ck': '53fa7ee3e97dc47fc0fdb6bff01d3347b1f4205055ba74fa07f143b5af5fdf331ebf0dc6f0e7cbe22f151321497ce5e7b1bf2a0c38217f2d680b51be36cc744bfe8fa687f3c23f9baffee1cccf0e8fe7f8f299a1bdd1c4a48ecab8e4593583f0daed8fb02e73d1f9f2418838f9731425fd22202760a067550d53f4265b0a5e29ad7fd9a60593354a92532bc7eeb9a9e4bedfc863b55e5e488c7bba',
-            '__kla_id': 'JTdCJTIyZW1haWwlMjIlM0ElMjJ4Y3JhY2tlcjEwJTQwZ21haWwuY29tJTIyJTJDJTIyZmlyc3RfbmFtZSUyMiUzQSUyMkpvaG4lMjIlMkMlMjJsYXN0X25hbWUlMjIlM0ElMjJTbWl0aCUyMiU3RA==',
+            '__kla_id': 'JTdCJTIyZW1haWwlMjIlM0AlMjJ4Y3JhY2tlcjEwJTQwZ21haWwuY29tJTIyJTJDJTIyZmlyc3RfbmFtZSUyMiUzQSUyMkpvaG4lMjIlMkMlMjJsYXN0X25hbWUlMjIlM0ElMjJTbWl0aCUyMiU3RA==',
             'wordpress_logged_in_9a1daefe07e3d628d7e9f4ff0d3f8220': 'john.smith-5615%7C1761988602%7CIKVPCr9eY6nRF12P8MX2yCQvbKWKAhNgpzJ9WIDhT7k%7Cfef4f7a586ba1e412ef9cb33688723e5c2e2df2dfaf91eb700765c6491bac72e',
             'wp_woocommerce_session_9a1daefe07e3d628d7e9f4ff0d3f8220': '9732510%7C1760951083%7C1760864683%7C%24generic%24RBilklGuEDlklAh3dPeHeDzvjieZFKrZD40LZfxu',
             'woocommerce_recently_viewed': '4340182',
