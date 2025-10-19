@@ -7,10 +7,8 @@ from flask import Flask, jsonify, request
 app = Flask(__name__)
 
 class EcosmeticsPayment:
-    def __init__(self, proxy=None):
+    def __init__(self):
         self.session = requests.Session()
-        if proxy:
-            self.session.proxies.update({'http': proxy, 'https': proxy})
         self.cookies = {
             '_gcl_au': '1.1.472509716.1760778293',
             '_ga': 'GA1.1.260355234.1760778309',
@@ -239,28 +237,21 @@ class EcosmeticsPayment:
         except Exception as e:
             return {"status": "Error", "response": f"Processing error"}
 
-@app.route('/gateway=b3$/cc=<cc>/proxy=<proxy>', methods=['GET'])
-def process(cc, proxy):
-    cc_parts = cc.split('|')
-    if len(cc_parts) != 4:
+@app.route('/gateway=b3$/cc=<cc>', methods=['GET'])
+def process_cc(cc):
+    parts = cc.split('|')
+    if len(parts) != 4:
         return jsonify({"error": "Invalid format: Use cc|mm|yy|cvv or cc|mm|yyyy|cvv"})
-
-    card_number = cc_parts[0].strip()
-    exp_month = cc_parts[1].strip()
-    exp_year = cc_parts[2].strip()
-    cvv = cc_parts[3].strip()
+    
+    card_number = parts[0].strip()
+    exp_month = parts[1].strip()
+    exp_year = parts[2].strip()
+    cvv = parts[3].strip()
     
     if len(exp_year) == 2:
         exp_year = '20' + exp_year
-
-    proxy_parts = proxy.split(':')
-    if len(proxy_parts) != 4:
-        return jsonify({"error": "Wrong proxy format"})
-
-    ip, port, user, pw = proxy_parts
-    proxy_url = f"http://{user}:{pw}@{ip}:{port}"
     
-    payment = EcosmeticsPayment(proxy_url)
+    payment = EcosmeticsPayment()
     result = payment.process_payment(card_number, exp_month, exp_year, cvv)
     
     return jsonify(result)
