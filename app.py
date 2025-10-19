@@ -153,7 +153,7 @@ class EcosmeticsPayment:
 
     def extract_nonce_from_site(self):
         checkout_url = "https://www.ecosmetics.com/checkout/"
-        response = self.session.get(checkout_url, headers=self.headers)
+        response = self.session.get(checkout_url, headers=self.headers, cookies=self.cookies)
         
         patterns = [
             r'name="woocommerce-process-checkout-nonce" value="([^"]+)"',
@@ -251,6 +251,7 @@ class EcosmeticsPayment:
                 'https://www.ecosmetics.com/',
                 params=params,
                 headers=self.headers,
+                cookies=self.cookies,
                 data=data,
                 timeout=30
             )
@@ -260,7 +261,7 @@ class EcosmeticsPayment:
         except Exception as e:
             return {"status": "Error", "response": f"Processing error"}
 
-@app.route('/', methods=['GET'])
+@app.route('/gateway=b3charge/cc=', methods=['GET'])
 def handle_request():
     gateway = request.args.get('gateway')
     if gateway != 'b3charge':
